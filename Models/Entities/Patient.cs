@@ -28,7 +28,7 @@ namespace MedicalLaboratoryNumber20WebAPI.Models.Entities
         public string PatientEmail { get; set; }
         public string SecurityNumber { get; set; }
         public string EIN { get; set; }
-        public int SocialTypeId { get; set; }
+        public Nullable<int> SocialTypeId { get; set; }
         public string PatientPhone { get; set; }
         public string PassportSeries { get; set; }
         public string PassportNumber { get; set; }
