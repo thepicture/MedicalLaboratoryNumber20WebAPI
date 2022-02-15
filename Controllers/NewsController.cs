@@ -8,7 +8,8 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
 {
     public class NewsController : ApiController
     {
-        private MedicalLaboratoryNumber20Entities db = new MedicalLaboratoryNumber20Entities();
+        private readonly MedicalLaboratoryNumber20Entities db =
+            new MedicalLaboratoryNumber20Entities();
 
         // GET: api/News
         public IQueryable<News> GetNews()

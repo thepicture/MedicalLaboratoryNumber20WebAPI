@@ -80,6 +80,15 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (credentials.Login == null || credentials.Login.Length > 100)
+            {
+                return BadRequest("Логин обязателен длиной не больше 100 символов");
+            }
+            if (credentials.Password == null || credentials.Password.Length > 100)
+            {
+                return BadRequest("Пароль обязателен длиной не больше 100 символов");
+            }
+
             Patient patient = await db.Patient
                 .FirstOrDefaultAsync(p => p.PatientLogin == credentials.Login
                                           && p.PatientPassword == credentials.Password);
