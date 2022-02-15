@@ -89,14 +89,42 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
                 return BadRequest("Пароль обязателен длиной не больше 100 символов");
             }
 
+            LoginHistory loginHistory = new LoginHistory
+            {
+                LoginDateTime = DateTime.Now,
+                EnteredLogin = credentials.Login,
+            };
+
             Patient patient = await db.Patient
                 .FirstOrDefaultAsync(p => p.PatientLogin == credentials.Login
                                           && p.PatientPassword == credentials.Password);
             if (patient == null)
             {
+                loginHistory.IsSuccessful = false;
+                db.LoginHistory.Add(loginHistory);
+
+                try
+                {
+                    await db.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    return InternalServerError();
+                }
                 return Unauthorized();
             }
 
+            loginHistory.IsSuccessful = true;
+            db.LoginHistory.Add(loginHistory);
+
+            try
+            {
+                await db.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
             return Ok(new ResponsePatient(patient));
         }
 
