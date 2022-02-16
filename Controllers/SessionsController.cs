@@ -2,11 +2,15 @@
 using MedicalLaboratoryNumber20WebAPI.Models.RequestModels;
 using MedicalLaboratoryNumber20WebAPI.Models.ResponseModels;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Script.Serialization;
 
 namespace MedicalLaboratoryNumber20WebAPI.Controllers
 {
@@ -173,7 +177,6 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
                 return Conflict();
             }
 
-
             Patient newPatient = new Patient
             {
                 PatientFullName = requestPatient.FullName,
@@ -198,6 +201,58 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             }
 
             return Ok();
+        }
+
+        // GET: api/Sessions/research-results
+        [Route("api/Sessions/research-results")]
+        [ResponseType(typeof(List<ResponseResearchResult>))]
+        public async Task<IHttpActionResult> GetResearchResults()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string authorizationHeader = HttpContext.Current.Request.Headers["Authorization"];
+            RequestCredentials credentials;
+            try
+            {
+                credentials = new JavaScriptSerializer()
+                    .Deserialize<RequestCredentials>(authorizationHeader);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+
+            if (credentials.Login == null || credentials.Login.Length > 100)
+            {
+                return BadRequest("Логин обязателен длиной не больше 100 символов");
+            }
+            if (credentials.Password == null || credentials.Password.Length > 100)
+            {
+                return BadRequest("Пароль обязателен длиной не больше 100 символов");
+            }
+
+            Patient patient = await db.Patient
+                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower()
+                                          == credentials.Login.ToLower()
+                                          && p.PatientPassword == credentials.Password);
+
+            if (patient == null)
+            {
+                return Unauthorized();
+            }
+
+            List<BloodServiceOfUser> results = await db.BloodServiceOfUser
+                .Include(bs => bs.Service)
+                .Include(bs => bs.Blood)
+                .Where(bs => bs.Blood.PatientId == patient.PatientId)
+                .Where(bs => bs.IsAccepted == true)
+                .Where(bs => bs.Result != null)
+                .ToListAsync();
+
+            return Ok(results.ConvertAll(bs => new ResponseResearchResult(bs)));
         }
 
         protected override void Dispose(bool disposing)
