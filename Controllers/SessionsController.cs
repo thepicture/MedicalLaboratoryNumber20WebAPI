@@ -43,13 +43,13 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             }
 
             Patient patient = await db.Patient
-                .FirstOrDefaultAsync(p => p.PatientLogin == requestPatient.Credentials.Login
+                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower() 
+                                          == requestPatient.Credentials.Login.ToLower()
                                           && p.PatientPassword == requestPatient.Credentials.Password);
             if (patient == null)
             {
                 return Unauthorized();
             }
-
 
             patient.PatientPhone = requestPatient.Phone;
             patient.PatientEmail = requestPatient.Email;
@@ -171,7 +171,8 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             }
 
             Patient patient = await db.Patient
-                .FirstOrDefaultAsync(p => p.PatientLogin == requestPatient.Credentials.Login);
+                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower() 
+                                          == requestPatient.Credentials.Login.ToLower());
             if (patient != null)
             {
                 return Conflict();
@@ -189,6 +190,7 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
                 PassportNumber = requestPatient.PassportNumber,
                 BirthDate = requestPatient.BirthDate,
             };
+
             db.Patient.Add(newPatient);
 
             try
