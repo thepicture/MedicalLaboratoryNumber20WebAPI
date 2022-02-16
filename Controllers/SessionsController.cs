@@ -96,26 +96,11 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             };
 
             Patient patient = await db.Patient
-                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower() 
+                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower()
                                           == credentials.Login.ToLower()
                                           && p.PatientPassword == credentials.Password);
-            if (patient == null)
-            {
-                loginHistory.IsSuccessful = false;
-                db.LoginHistory.Add(loginHistory);
 
-                try
-                {
-                    await db.SaveChangesAsync();
-                }
-                catch (Exception)
-                {
-                    return InternalServerError();
-                }
-                return Unauthorized();
-            }
-
-            loginHistory.IsSuccessful = true;
+            loginHistory.IsSuccessful = patient != null;
             db.LoginHistory.Add(loginHistory);
 
             try
@@ -126,6 +111,12 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             {
                 return InternalServerError();
             }
+
+            if (patient == null)
+            {
+                return Unauthorized();
+            }
+
             return Ok(new ResponsePatient(patient));
         }
 
