@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web.Script.Serialization;
 
 namespace MedicalLaboratoryNumber20WebAPI.Controllers
 {
@@ -43,7 +43,7 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             }
 
             Patient patient = await db.Patient
-                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower() 
+                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower()
                                           == requestPatient.Credentials.Login.ToLower()
                                           && p.PatientPassword == requestPatient.Credentials.Password);
             if (patient == null)
@@ -171,7 +171,7 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             }
 
             Patient patient = await db.Patient
-                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower() 
+                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower()
                                           == requestPatient.Credentials.Login.ToLower());
             if (patient != null)
             {
@@ -216,16 +216,24 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             }
 
             string authorizationHeader = HttpContext.Current.Request.Headers["Authorization"];
-            RequestCredentials credentials;
-            try
-            {
-                credentials = new JavaScriptSerializer()
-                    .Deserialize<RequestCredentials>(authorizationHeader);
-            }
-            catch (Exception)
+
+            if (authorizationHeader == null)
             {
                 return Unauthorized();
             }
+
+            if (!Regex.IsMatch(authorizationHeader, @"Basic \w+:\w+"))
+            {
+                return BadRequest("Authorization token is invalid. " +
+                    "It should be in format 'Basic login:password'");
+            }
+
+            RequestCredentials credentials;
+            credentials = new RequestCredentials
+            {
+                Login = authorizationHeader.Split(' ')[1].Split(':')[0],
+                Password = authorizationHeader.Split(' ')[1].Split(':')[1],
+            };
 
             if (credentials.Login == null || credentials.Login.Length > 100)
             {
