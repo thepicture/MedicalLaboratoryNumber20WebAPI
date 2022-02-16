@@ -137,13 +137,19 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             {
                 return BadRequest("ФИО обязательно длиной не больше 100 символов");
             }
-            if (requestPatient.Credentials.Login == null || requestPatient.Credentials.Login.Length > 100)
+            if (requestPatient.Credentials.Login == null
+                || requestPatient.Credentials.Login.Length > 100
+                || requestPatient.Credentials.Login.Any(c => ": ".Contains(c)))
             {
-                return BadRequest("Логин обязателен длиной не больше 100 символов");
+                return BadRequest("Логин обязателен длиной не больше 100 символов " +
+                    "и не должен содержать двоеточие или пробел");
             }
-            if (requestPatient.Credentials.Password == null || requestPatient.Credentials.Password.Length > 100)
+            if (requestPatient.Credentials.Password == null
+                || requestPatient.Credentials.Password.Length > 100
+                || requestPatient.Credentials.Password.Any(c => ": ".Contains(c)))
             {
-                return BadRequest("Пароль обязателен длиной не больше 100 символов");
+                return BadRequest("Пароль обязателен длиной не больше 100 символов " +
+                    "и не должен содержать двоеточие или пробел");
             }
             if (requestPatient.Email == null || requestPatient.Email.Length > 100)
             {
