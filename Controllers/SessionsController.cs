@@ -96,7 +96,8 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
             };
 
             Patient patient = await db.Patient
-                .FirstOrDefaultAsync(p => p.PatientLogin == credentials.Login
+                .FirstOrDefaultAsync(p => p.PatientLogin.ToLower() 
+                                          == credentials.Login.ToLower()
                                           && p.PatientPassword == credentials.Password);
             if (patient == null)
             {
