@@ -19,9 +19,10 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
         private readonly MedicalLaboratoryNumber20Entities db =
             new MedicalLaboratoryNumber20Entities();
 
-        // PUT: api/Sessions/edit
+        // PATCH: api/Sessions/edit
         [Route("api/Sessions/edit")]
         [ResponseType(typeof(void))]
+        [HttpPatch]
         public async Task<IHttpActionResult> EditProfile(RequestPatient requestPatient)
         {
             if (!ModelState.IsValid)
