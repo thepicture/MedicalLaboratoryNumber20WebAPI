@@ -72,7 +72,7 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
                 }
             }
 
-            return Ok();
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
         }
 
         // POST: api/Sessions/login
@@ -127,6 +127,7 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
 
         // POST: api/Sessions/register
         [Route("api/Sessions/register")]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Register(RequestPatient requestPatient)
         {
             if (!ModelState.IsValid)
@@ -209,7 +210,7 @@ namespace MedicalLaboratoryNumber20WebAPI.Controllers
                 return InternalServerError();
             }
 
-            return Ok();
+            return StatusCode(System.Net.HttpStatusCode.NoContent);
         }
 
         // GET: api/Sessions/research-results
